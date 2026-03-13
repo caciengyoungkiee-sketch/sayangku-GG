@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Special Gift 🎁</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #ff69b4;
+            --bg-color: #ffeef2;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-color);
+            font-family: 'Quicksand', sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+        }
+
+        /* Tombol Gear Setting */
+        .btn-settings {
+            position: fixed; top: 20px; right: 20px;
+            background: white; border: none; border-radius: 50%;
+            width: 45px; height: 45px; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 100;
+            font-size: 20px; display: flex; justify-content: center; align-items: center;
+        }
+
+        .main-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            padding: 30px; border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            text-align: center; width: 85%; max-width: 400px;
+            z-index: 10; position: relative;
+        }
+
+        .main-card img {
+            width: 130px; border-radius: 20px; margin-bottom: 20px;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            color: var(--primary-color); font-size: 26px; margin: 0;
+            min-height: 80px;
+        }
+
+        .btn-start {
+            background: var(--primary-color); color: white;
+            border: none; padding: 12px 30px; border-radius: 50px;
+            font-weight: bold; cursor: pointer; margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(255, 105, 180, 0.4);
+            transition: 0.3s;
+        }
+
+        /* Animasi Hujan Partikel */
+        .particle {
+            position: fixed; top: -20px; z-index: 1;
+            pointer-events: none; animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="btn-settings" onclick="bukaSetting()">⚙️</button>
+
+    <div class="main-card">
+        <img id="displayGif" src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExOHIyb3F6amV6eGZidHhndXJ6eGZidHhndXJ6eGZidHhndXJ6eGZidHhndSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/MDJ9IbxxvDUQM/giphy.gif">
+        <h1 id="textDisplay">Hai kamu! Klik tombol di bawah ya...</h1>
+        <button id="startBtn" class="btn-start" onclick="mulaiSurprise()">Buka Hadiah</button>
+    </div>
+
+    <audio id="bgMusic" loop src="https://www.chosic.com/wp-content/uploads/2021/04/And-So-It-Begins-Inspired-By-Departure.mp3"></audio>
+
+    <script>
+        // Data default yang bisa diubah via setting
+        let config = {
+            pesan: "Happy Birthday|Aku Sayang Kamu|Semangat Terus Ya!|❤️",
+            partikel: "❤️",
+            warna: "#ff69b4",
+            lagu: "https://www.chosic.com/wp-content/uploads/2021/04/And-So-It-Begins-Inspired-By-Departure.mp3"
+        };
+
+        function mulaiSurprise() {
+            document.getElementById('bgMusic').play();
+            document.getElementById('startBtn').style.display = 'none';
+            
+            // Start Animasi
+            setInterval(buatPartikel, 300);
+            
+            // Start Teks Berjalan
+            let listPesan = config.pesan.split('|');
+            tampilkanPesan(listPesan, 0);
+        }
+
+        function tampilkanPesan(arr, index) {
+            if (index < arr.length) {
+                let el = document.getElementById("textDisplay");
+                el.innerHTML = arr[index];
+                el.style.animation = 'none';
+                el.offsetHeight; 
+                el.style.animation = null;
+                
+                setTimeout(() => tampilkanPesan(arr, index + 1), 3000);
+            }
+        }
+
+        function buatPartikel() {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.innerHTML = config.partikel;
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            p.style.color = config.warna;
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 5000);
+        }
+
+        async function bukaSetting() {
+            const { value: formValues } = await Swal.fire({
+                title: 'Atur Web Kamu',
+                html:
+                    `<label>Pesan (pisah dengan |)</label>` +
+                    `<input id="swal-pesan" class="swal2-input" value="${config.pesan}">` +
+                    `<label>Karakter Hujan (Contoh: ❤️ atau ✨)</label>` +
+                    `<input id="swal-partikel" class="swal2-input" value="${config.partikel}">` +
+                    `<label>Warna Tema (Hex)</label>` +
+                    `<input id="swal-warna" class="swal2-input" type="color" value="${config.warna}">`,
+                focusConfirm: false,
+                preConfirm: () => {
+                    return {
+                        pesan: document.getElementById('swal-pesan').value,
+                        partikel: document.getElementById('swal-partikel').value,
+                        warna: document.getElementById('swal-warna').value
+                    }
+                }
+            });
+
+            if (formValues) {
+                config = { ...config, ...formValues };
+                document.documentElement.style.setProperty('--primary-color', config.warna);
+                Swal.fire('Berhasil!', 'Settingan sudah diupdate sementara.', 'success');
+            }
+        }
+    </script>
+</body>
+</html>
